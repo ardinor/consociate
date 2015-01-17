@@ -2,11 +2,31 @@ from consociate.consociate import CiscoHost, Consociate
 from getpass import getpass
 
 
-def run():
+def hostPrompt(consociate, host):
 
-    consoc = Consociate()
+    prompt = "{}> ".format(host.host)
 
-    print("To begin create at least one host `create host` or `import hosts`.")
+    while 1:
+        cmd = input(prompt).lower()
+        
+        if cmd == "print":
+            pass
+        
+        elif cmd == "help" or cmd == "?":
+            print("""
+exit - exits this host prompt
+            """)
+        elif cmd == "exit" or cmd == "quit":
+            print("Exiting...")
+            break        
+
+
+def mainPrompt():
+
+    consociate = Consociate()
+
+    print("To begin create at least one host `create host` or `import hosts`. For help, type help, to exit, type exit")
+    
     while 1:
         cmd = input("> ").lower()
         if cmd == "create host":
@@ -31,14 +51,19 @@ def run():
                 
             print("How do you connect to the host?")
             connType = input("[SSH/telnet]> ").lower()
-            print(connType)
             if connType == "":
                 connType = "ssh"
-            print(connType)
-            print(type(connType))
             newHost = CiscoHost(hostname, connType)
             
-            consoc.addHost(newHost)
+            consociate.addHost(newHost)
+            print("Finished adding host {}".format(hostname))
+            
+        elif cmd[:5] == "host ":
+            host = consociate.getHost(cmd[5:])
+            if host:
+                hostPrompt(consociate, host)
+            else:
+                print("Error: No host found with hostname {}!".format(cmd[5:]))
             
         elif cmd == "help" or cmd == "?":
             print("""
@@ -47,9 +72,10 @@ import hosts - imports a list of hosts from a file
 list hosts - list the hosts that have been created or imported
 exit - exit the application
             """)
+            
         elif cmd == "exit" or cmd == "quit":
             print("Exiting...")
             break
 
 if __name__ == "__main__":
-    run()
+    mainPrompt()

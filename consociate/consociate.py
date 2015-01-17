@@ -8,6 +8,12 @@ class Consociate():
         
     def addHost(self, host):
         self.hosts.append(host)
+        
+    def getHost(self, hostname):
+        for host in self.hosts:
+            if host.host == hostname:
+                return host
+        return None
 
 
 class CiscoHost():
