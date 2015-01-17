@@ -1,6 +1,7 @@
 import telnetlib
 import time
 
+
 class Consociate():
 
     def __init__(self):
@@ -14,6 +15,16 @@ class Consociate():
             if host.host == hostname:
                 return host
         return None
+        
+    def getHosts(self):
+        return self.hosts
+        
+    def deleteHost(self, hostname):
+        for host in self.hosts:
+            if host.host == hostname:
+                self.hosts.remove(host)
+                return True
+        return False    
 
 
 class CiscoHost():
@@ -28,6 +39,11 @@ class CiscoHost():
         self.loginPassword = ""
         self.enablePassword = ""
         
+    def setLoginDetails(self, username, password, enablePassword):
+        self.loginUsername = username
+        self.loginPassword = password
+        self.enablePassword = enablePassword
+        
     def __repr__(self):
         return "<Host:{}>".format(self.host)
 
@@ -40,6 +56,19 @@ class CiscoHost():
         if self.connType == "ssh":
             return True
         return False
+        
+    def getUsername(self):
+        if self.loginUsername:
+            return self.loginUsername
+        return "Not set"
+            
+    def getEnablePassSet(self):
+        if self.enablePassword:
+            return "Y"
+        return "N"
+        
+    def getConnType(self):
+        return self.connType
 
     def telnetWriteString(self, wString):
         return wString.encode('ascii') + b"\n"

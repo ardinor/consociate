@@ -1,0 +1,1 @@
+from consociate.settings import __VERSION__

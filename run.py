@@ -1,4 +1,5 @@
 from consociate.consociate import CiscoHost, Consociate
+from consociate import __VERSION__
 from getpass import getpass
 
 
@@ -25,13 +26,16 @@ def mainPrompt():
 
     consociate = Consociate()
 
-    print("To begin create at least one host `create host` or `import hosts`. For help, type help, to exit, type exit")
+    print("welcome to Consociate v{}".format(__VERSION__))
+    print("To begin create at least one host `create host` or `import hosts`.")
+    print("For help, type help. To exit, type exit.")
     
     while 1:
         cmd = input("> ").lower()
         if cmd == "create host":
             print("Hostname or IP address")
             hostname = input("> ")
+            username, password, enablePass = "", "", ""
             print("Are login details required to connect to this host?")
             loginReq = input("[Y/n]> ").lower()
             if loginReq == "n":
@@ -53,9 +57,12 @@ def mainPrompt():
             connType = input("[SSH/telnet]> ").lower()
             if connType == "":
                 connType = "ssh"
+                
             newHost = CiscoHost(hostname, connType)
+            newHost.setLoginDetails(username, password, enablePass)
             
-            consociate.addHost(newHost)
+            consociate.addHost(newHost)            
+            
             print("Finished adding host {}".format(hostname))
             
         elif cmd[:5] == "host ":
@@ -64,18 +71,26 @@ def mainPrompt():
                 hostPrompt(consociate, host)
             else:
                 print("Error: No host found with hostname {}!".format(cmd[5:]))
+                
+        elif cmd == "show hosts":
+            print("Hostname\tUsername\tEnable Password Set\tConnection Type")
+            for host in consociate.getHosts():
+                print(host.host + "\t" +  host.getUsername() + "\t" + host.getEnablePassSet() + "\t" + host.getConnType())
             
         elif cmd == "help" or cmd == "?":
             print("""
 create host - creates a single host in a guided interview format
 import hosts - imports a list of hosts from a file
-list hosts - list the hosts that have been created or imported
+show hosts - list the hosts that have been created or imported
 exit - exit the application
             """)
             
         elif cmd == "exit" or cmd == "quit":
             print("Exiting...")
             break
+            
+        else:
+            print("Unknown command: {}".format(cmd))
 
 if __name__ == "__main__":
     mainPrompt()
