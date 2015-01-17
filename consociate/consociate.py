@@ -1,7 +1,7 @@
 import telnetlib
 import time
 
-class Consociate()
+class Consociate():
 
     def __init__(self):
         self.hosts = []
@@ -14,7 +14,7 @@ class CiscoHost():
 
     def __init__(self, host, connType):
         self.host = host
-        if connType != "ssh" or connType != "telnet":
+        if connType != "ssh" and connType != "telnet":
             raise Exception("Invalid Connection Type...")
         self.connType = connType
 
