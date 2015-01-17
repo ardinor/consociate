@@ -1,32 +1,44 @@
 import telnetlib
 import time
 
-class CiscoConnection():
+class Consociate()
+
+    def __init__(self):
+        self.hosts = []
+        
+    def addHost(self, host):
+        self.hosts.append(host)
+
+
+class CiscoHost():
 
     def __init__(self, host, connType):
         self.host = host
-        if connType != "SSH" or connType != "Telnet":
+        if connType != "ssh" or connType != "telnet":
             raise Exception("Invalid Connection Type...")
         self.connType = connType
 
         self.loginUsername = ""
         self.loginPassword = ""
         self.enablePassword = ""
+        
+    def __repr__(self):
+        return "<Host:{}>".format(self.host)
 
     def connTypeTelnet(self):
-        if self.connType == "Telnet":
+        if self.connType == "telnet":
             return True
         return False
 
     def connTypeSSH(self):
-        if self.connType == "SSH":
+        if self.connType == "ssh":
             return True
         return False
 
     def telnetWriteString(self, wString):
         return wString.encode('ascii') + b"\n"
 
-    def getResultFromShowCommand(self, command):
+    def getResultFromCommand(self, command):
 
         if connTypeTelnet:
             telnetConn = telnetlib.Telnet(self.host)
@@ -66,6 +78,3 @@ class CiscoConnection():
             result = result.strip()
 
             return result
-
-
-
