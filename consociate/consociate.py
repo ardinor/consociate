@@ -99,7 +99,7 @@ class CiscoHost():
 
             result = ''
 
-            telnetConn.write(command.encode('ascii') + b"\n")
+            telnetConn.write(self.connWriteString(command))
 
             while 1:
                 time.sleep(1)  # fine tune this?
@@ -114,7 +114,7 @@ class CiscoHost():
                     result += bufferText
                     break
 
-            telnetConn.write(b"exit\n")
+            telnetConn.write(self.connWriteString("exit"))
 
             result = result[:result.rfind("\n")]
             result = result.strip()
@@ -140,3 +140,14 @@ class CiscoHost():
             conn.send(self.connWriteString('terminal length 0'))
             time.sleep(.2)
             conn.send(self.connWriteString(''))
+            while conn.recv_ready():
+                conn.recv(1000)
+            conn.send(self.connWriteString(command))
+            time.sleep(.5)
+            result = ''
+            while conn.recv_ready():
+                result += conn.recv(1000)
+
+            conn.send(self.connWriteString('exit'))
+
+            return result
