@@ -150,4 +150,8 @@ class CiscoHost():
 
             conn.send(self.connWriteString('exit'))
 
+            result = result[result.find(command) + len(command):]
+            result = result[:result.rfind("\n")]
+            result = result.strip()
+
             return result
