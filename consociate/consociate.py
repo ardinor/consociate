@@ -131,17 +131,21 @@ class CiscoHost():
             client.connect(self.host, username=self.loginUsername,
                            password=self.loginPassword)
 
-            remoteShell = client.invoke_shell()
+            conn = client.invoke_shell()
             conn.send(self.connWriteString('en'))
             time.sleep(.2)
             conn.send(self.connWriteString(self.enablePassword))
             time.sleep(.2)
+
             # Disable paging, so no --More--
             conn.send(self.connWriteString('terminal length 0'))
             time.sleep(.2)
+
+            # Clear the buffer
             conn.send(self.connWriteString(''))
             while conn.recv_ready():
-                conn.recv(1000)
+                result = conn.recv(1000)
+
             conn.send(self.connWriteString(command))
             time.sleep(.5)
             result = ''
