@@ -1,5 +1,6 @@
 import telnetlib
 import time
+import re
 
 from paramiko import SSHClient, AutoAddPolicy
 
@@ -106,7 +107,7 @@ class CiscoHost():
                 bufferText = telnetConn.read_very_eager().decode('ascii')
                 bufferText = bufferText[bufferText.find("\n"):]
 
-                 if "--More--" in bufferText:
+                if "--More--" in bufferText:
                      bufferText = bufferText[:bufferText.rfind("\n")]
                      result += bufferText
                      telnetConn.write(chr(32))  # simulate SPACE press
@@ -134,8 +135,9 @@ class CiscoHost():
             conn = client.invoke_shell()
             conn.send(self.connWriteString('en'))
             time.sleep(.2)
-            conn.send(self.connWriteString(self.enablePassword))
-            time.sleep(.2)
+            if self.enablePassword:
+                conn.send(self.connWriteString(self.enablePassword))
+                time.sleep(.2)
 
             # Disable paging, so no --More--
             conn.send(self.connWriteString('terminal length 0'))
@@ -159,3 +161,48 @@ class CiscoHost():
             result = result.strip()
 
             return result
+
+    def parseLogForACLs(self, log):
+        logEntries = log.split('\n')
+        permittedEntries = {}
+        deniedEntries = {}
+
+        for logEntry in logEntries:
+            match = re.search('list (?P<list>(\S*)) (?P<action>(permitted|denied)) (?P<protocol>(tcp|udp)) (?P<sourceIP>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))\\((?P<sourcePort>(\d+))\\) -> (?P<destinationIP>(\d+\\.\d+\\.\d+\\.\d+))\\((?P<destinationPort>(\d+))\\)', logEntry)
+            if match:
+                accessList = match.group('list')
+                action = match.group('action')
+                protocol = match.group('protocol')
+                sourceIP = match.group('sourceIP')
+                sourcePort = match.group('sourcePort')
+                destinationIP = match.group('destinationIP')
+                destinationPort = match.group('destinationPort')
+
+                if action == 'permitted':
+                    if accessList in permittedEntries.keys():
+                        permittedEntries[accessList] += [{'protocol': protocol,
+                                                        'sourceIP': sourceIP,
+                                                        'sourcePort': sourcePort,
+                                                        'destinationIP': destinationIP,
+                                                        'destinationPort': destinationPort}]
+                    else:
+                        permittedEntries[accessList] = [{'protocol': protocol,
+                                                        'sourceIP': sourceIP,
+                                                        'sourcePort': sourcePort,
+                                                        'destinationIP': destinationIP,
+                                                        'destinationPort': destinationPort}]
+                elif action == 'denied':
+                    if accessList in deniedEntries.keys():
+                        deniedEntries[accessList] += [{'protocol': protocol,
+                                                        'sourceIP': sourceIP,
+                                                        'sourcePort': sourcePort,
+                                                        'destinationIP': destinationIP,
+                                                        'destinationPort': destinationPort}]
+                    else:
+                        deniedEntries[accessList] = [{'protocol': protocol,
+                                                        'sourceIP': sourceIP,
+                                                        'sourcePort': sourcePort,
+                                                        'destinationIP': destinationIP,
+                                                        'destinationPort': destinationPort}]
+
+

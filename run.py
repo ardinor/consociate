@@ -13,6 +13,14 @@ def hostPrompt(consociate, host):
         if cmd == "print":
             pass
 
+        elif cmd[:8] == 'command ':
+            result = host.getResultFromCommand(cmd[8:])
+            print(result)
+
+        elif cmd == 'parse log acl':
+            logResult = host.getResultFromCommand('show logging')
+            host.parseLogForACLs(logResult)
+
         elif cmd == "help" or cmd == "?":
             print("""
 exit - exits this host prompt
