@@ -168,6 +168,12 @@ class CiscoHost():
         deniedEntries = {}
 
         for logEntry in logEntries:
+            # TO DO:
+            # what about the mentions of Vlans in the log entry?
+            # 111.111.111.111(111) (Vlan1 0000.0c20e.b87b) -> 192.168.25.13(11111)
+            # Get datetime out of it too
+            # What about the number of packets at the end?
+            # 192.168.25.13(11111), 1 packet
             match = re.search('list (?P<list>(\S*)) (?P<action>(permitted|denied)) (?P<protocol>(tcp|udp)) (?P<sourceIP>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))\\((?P<sourcePort>(\d+))\\) -> (?P<destinationIP>(\d+\\.\d+\\.\d+\\.\d+))\\((?P<destinationPort>(\d+))\\)', logEntry)
             if match:
                 accessList = match.group('list')
